@@ -1,14 +1,13 @@
 //
-//  SPRecordButton.swift
-//  SPRecordButton
+//  GORecordButton.swift
+//  GORecordButton
 //
 //  Created by 高文立 on 2020/6/28.
-//  Copyright © 2020 mouos. All rights reserved.
 //
 
 import UIKit
 
-enum RecordType: Int {
+@objc enum GORecordType: Int {
     case click
     case longPressBegin
     case longPressMoving
@@ -16,14 +15,14 @@ enum RecordType: Int {
     case longPressCancel
 }
 
-protocol SPRecordButtonDelegate: AnyObject {
+@objc protocol GORecordButtonDelegate: AnyObject {
     
-    func button(_ button: SPRecordButton, shouldChangeRecordType type: RecordType, isDismissHandler: ((_ dismiss: Bool) -> ())?)
+    @objc optional func button(_ button: GORecordButton, shouldChangeRecordType type: GORecordType, isDismissHandler: ((_ dismiss: Bool) -> ())?)
 }
 
-class SPRecordButton: UIView {
+@objcMembers public class GORecordButton: UIView {
     
-    weak var delegate: SPRecordButtonDelegate?
+    weak var delegate: GORecordButtonDelegate?
     
     var timeInterval: CGFloat = 15
     var outCircleColor = UIColor.lightGray
@@ -71,7 +70,7 @@ class SPRecordButton: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func draw(_ rect: CGRect) {
+    public override func draw(_ rect: CGRect) {
         
         var outCircleRadius: CGFloat = 0
         var centerCircleRadius: CGFloat = 0
@@ -95,7 +94,7 @@ class SPRecordButton: UIView {
         progressLayer.strokeEnd = progress
     }
     
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         
         layer.cornerRadius = frame.size.width / 2
         layer.masksToBounds = true
@@ -111,11 +110,11 @@ class SPRecordButton: UIView {
     }
     
     deinit {
-        print("SPRecordButton deinit")
+        print("GORecordButton deinit")
     }
 }
 
-extension SPRecordButton {
+extension GORecordButton {
     
     func setupUI() {
         
@@ -129,7 +128,7 @@ extension SPRecordButton {
     
     @objc func tapGesture(_ gesture: UILongPressGestureRecognizer) {
         
-        self.delegate?.button(self, shouldChangeRecordType: .click, isDismissHandler: { [weak self] (dismiss) in
+        self.delegate?.button?(self, shouldChangeRecordType: .click, isDismissHandler: { [weak self] (dismiss) in
             if dismiss {
                 self?.link.invalidate()
             }
@@ -144,7 +143,7 @@ extension SPRecordButton {
         } else if gesture.state == .changed {
             let point: CGPoint = gesture.location(in: self)
             if self.point(inside: point, with: nil) {
-                self.delegate?.button(self, shouldChangeRecordType: .longPressMoving, isDismissHandler: { [weak self] (dismiss) in
+                self.delegate?.button?(self, shouldChangeRecordType: .longPressMoving, isDismissHandler: { [weak self] (dismiss) in
                     if dismiss {
                         self?.link.invalidate()
                     }
@@ -177,7 +176,7 @@ extension SPRecordButton {
         setNeedsDisplay()
     }
     
-    func stop(_ type: RecordType) {
+    func stop(_ type: GORecordType) {
         
         if type == .longPressCancel {
             isCancel = true
@@ -188,7 +187,7 @@ extension SPRecordButton {
         progress = 0
         tempInterval = 0
         progressLayer.isHidden = true
-        self.delegate?.button(self, shouldChangeRecordType: type, isDismissHandler: { [weak self] (dismiss) in
+        self.delegate?.button?(self, shouldChangeRecordType: type, isDismissHandler: { [weak self] (dismiss) in
             if dismiss {
                 self?.link.invalidate()
             }
@@ -203,7 +202,7 @@ extension SPRecordButton {
         progressLayer.isHidden = false
         link.isPaused = false
         
-        self.delegate?.button(self, shouldChangeRecordType: .longPressBegin, isDismissHandler: { [weak self] (dismiss) in
+        self.delegate?.button?(self, shouldChangeRecordType: .longPressBegin, isDismissHandler: { [weak self] (dismiss) in
             if dismiss {
                 self?.link.invalidate()
             }
